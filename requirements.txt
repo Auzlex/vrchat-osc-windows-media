@@ -1,4 +1,4 @@
 asyncio
 winsdk
-jaconv
+pykakasi
 python-osc

@@ -3,12 +3,11 @@ import sys
 parent_dir_name = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(parent_dir_name)
 
-# original base script forked from o0F-0oF, modified by Auzlex, then massacred by Tatzie and cleaned up again by Auzlex
-from re import A
+# original base script forked from o0F-0oF, modified by Auzlex, then massacred by Tatzie and cleaned up again by Auzlex translation fixed by Hypezz
 from pythonosc.udp_client import SimpleUDPClient
 import ctypes
 import time
-import jaconv
+import pykakasi # NOTE: this module will not include its db files on compile to exe
 import asyncio
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
@@ -53,6 +52,29 @@ async def get_media_info():
     # available ones. I just haven't implemented this here for my use case.
     # See references for more information.
 
+def convert_jap_to_romanji(jap) -> str:
+     # split jap by "-"
+    segments = jap.split("-")
+
+    joined_str = []
+
+    # convert japanse to alphabet because vrchat chatbox does not support utf-8
+    #https://pypi.org/project/pykakasi/
+    # for every segment pykakasi it and rejoin it with - 
+    for segment in segments:
+
+        segment = segment.strip()
+        segment = kks.convert(segment)
+
+        temp = ""
+
+        for converted in segment:
+            temp += converted["hepburn"]
+                
+        joined_str.append(temp)
+    
+    return joined_str
+
 spotifyName = ""
 a = ["", True]
 b = [f"{spotifyName}", True]
@@ -65,6 +87,8 @@ GetWindowText = ctypes.windll.user32.GetWindowTextW
 GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
 IsWindowVisible = ctypes.windll.user32.IsWindowVisible
 gatekeep_send = False
+
+kks = pykakasi.kakasi()
 
 while(True):
 
@@ -95,29 +119,13 @@ while(True):
                 
                 if gatekeep_send == False:
                     gatekeep_send = True
-                    b[0] = f"[PAUSED] {current_media_info.get('artist')} - {current_media_info.get('title')}"
+                    msg = f"{current_media_info.get('artist')} - {current_media_info.get('title')}"
+                    msg = "-".join(convert_jap_to_romanji(msg))
+                    b[0] = f"[PAUSED] {msg}"
+
                     client.send_message("/chatbox/input", b) # force send the message again because it is stopped by the boolean gatekeep_send
 
-            # split b[0] by "-"
-            segments = b[0].split("-")
-
-            joined_str = []
-
-            # convert japanse to alphabet because vrchat chatbox does not support utf-8
-            #https://pypi.org/project/jaconv/
-            # for every segment javonv it and rejoin it with - 
-            for segment in segments:
-
-                segment = segment.strip()
-                segment = jaconv.kata2hira(segment)
-                segment = jaconv.normalize(segment, 'NFKC')
-                segment = jaconv.kana2alphabet(segment)
-                segment = jaconv.kata2alphabet(segment)
-                segment = jaconv.hiragana2julius(segment)
-
-                joined_str.append(segment)
-                    
-            b[0] = " - ".join(joined_str)
+            b[0] = " - ".join(convert_jap_to_romanji(b[0]))
 
                 #client.send_message("/chatbox/input", b)
 

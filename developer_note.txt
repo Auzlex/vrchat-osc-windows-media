@@ -1,0 +1,15 @@
+pykakasi module does not include the data/databasefilename.db in compiling
+had to be manually added.
+
+the following error is provided if this folder is missing
+osc_windows_media.exe
+Traceback (most recent call last):
+  File "osc_windows_media.py", line 92, in <module>
+  File "pykakasi\legacy.py", line 38, in __init__
+  File "pykakasi\kakasi.py", line 36, in __init__
+  File "pykakasi\kanji.py", line 15, in __init__
+  File "pykakasi\kanji.py", line 107, in __init__
+FileNotFoundError: [Errno 2] No such file or directory: 'Z:\\CWD\\2022-0916-1107-osc-vrchat\\2022-0918-1648-vrchat-osc-windows-media\\output\\osc_windows_media\\pykakasi\\data\\kanwadict4.db'
+[27736] Failed to execute script 'osc_windows_media' due to unhandled exception!
+
+solution: copy the pykakasi/data folder into the main root folder with the exe and remove the all files not the db
