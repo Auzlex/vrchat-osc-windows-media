@@ -1,0 +1,4 @@
+asyncio
+winsdk
+jaconv
+python-osc
