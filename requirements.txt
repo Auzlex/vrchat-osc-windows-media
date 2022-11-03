@@ -1,4 +1,3 @@
 asyncio
 winsdk
-pykakasi
 python-osc
