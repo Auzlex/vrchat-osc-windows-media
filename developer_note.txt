@@ -16,3 +16,4 @@ solution: copy the pykakasi/data folder into the main root folder with the exe a
 
 -- above is redundant 
 compiling of this python script is done with auto-py-to-exe
+python3 -m auto_py_to_exe
