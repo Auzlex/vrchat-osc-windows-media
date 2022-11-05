@@ -79,8 +79,16 @@ while(True):
             print("all info is not available, please start playing something on your computer through windows media controls")
     else:
 
+        media_playback_type = 0 # 1 = music, 2 = video, 3 = image
+
+        try:
+            media_playback_type = int(current_media_info['playback_type'])
+        except Exception as e:
+            print("An error occured when trying to get the media playback type, defaulting to 0, please play and pause media content on your computer through windows media controls to possibly fix this issue.. else report this issue to the developer")
+            print(e)
+
         # we check if the media type is music
-        if int(current_media_info['playback_type']) != 1:
+        if media_playback_type != 1:
             
             print("this is not music -> please play music through windows media controls")
             b[0] = "[Media is playing but not music]"
