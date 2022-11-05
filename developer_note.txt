@@ -13,3 +13,6 @@ FileNotFoundError: [Errno 2] No such file or directory: 'Z:\\CWD\\2022-0916-1107
 [27736] Failed to execute script 'osc_windows_media' due to unhandled exception!
 
 solution: copy the pykakasi/data folder into the main root folder with the exe and remove the all files not the db
+
+-- above is redundant 
+compiling of this python script is done with auto-py-to-exe
