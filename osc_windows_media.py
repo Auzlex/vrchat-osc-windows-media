@@ -1,21 +1,34 @@
+# original base script forked from o0F-0oF, modified by Auzlex, then massacred by Tatzie and cleaned up again by Auzlex translation fixed by Hypezz
 import os
 import sys
+import ctypes
+import time
+import asyncio
+
 parent_dir_name = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(parent_dir_name)
 
-# original base script forked from o0F-0oF, modified by Auzlex, then massacred by Tatzie and cleaned up again by Auzlex translation fixed by Hypezz
 from pythonosc.udp_client import SimpleUDPClient
-import ctypes
-import time
-#import pykakasi # NOTE: this module will not include its db files on compile to exe
-import asyncio
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
-
 from winsdk.windows.media.control import (
     GlobalSystemMediaTransportControlsSessionPlaybackStatus as PlaybackStatus,
     SessionsChangedEventArgs,
 )
+
+spotifyName = ""
+a = ["", True]
+b = [f"{spotifyName}", True]
+ip = "127.0.0.1"
+port = 9000
+client = SimpleUDPClient(ip, port)
+EnumWindows = ctypes.windll.user32.EnumWindows
+EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
+GetWindowText = ctypes.windll.user32.GetWindowTextW
+GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
+IsWindowVisible = ctypes.windll.user32.IsWindowVisible
+gatekeep_send = False
+last_b = b
 
 async def get_media_info():
     sessions = await MediaManager.request_async()
@@ -52,20 +65,11 @@ async def get_media_info():
     # available ones. I just haven't implemented this here for my use case.
     # See references for more information.
 
-spotifyName = ""
-a = ["", True]
-b = [f"{spotifyName}", True]
-ip = "127.0.0.1"
-port = 9000
-client = SimpleUDPClient(ip, port)
-EnumWindows = ctypes.windll.user32.EnumWindows
-EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
-GetWindowText = ctypes.windll.user32.GetWindowTextW
-GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
-IsWindowVisible = ctypes.windll.user32.IsWindowVisible
-gatekeep_send = False
-
-#kks = pykakasi.kakasi()
+def send_m(b):
+    """Send media info to OSC server."""
+    if last_b != b[0]:
+        last_b = b[0]
+        client.send_message("/chatbox/input", b) # force send the message again because it is stopped by the boolean gatekeep_send
 
 while(True):
 
@@ -102,19 +106,21 @@ while(True):
                 gatekeep_send = False # send message
             else:
                 
+                # check if we can send the message
                 if gatekeep_send == False:
-                    gatekeep_send = True
+                    
+                    gatekeep_send = True # stop sending messages
+
+                    # combines the artist and title into one string
                     msg = f"{current_media_info.get('artist')} - {current_media_info.get('title')}"
-                    #msg = "-".join(convert_jap_to_romanji(msg))
+
+                    # we add the pause message to the list
                     b[0] = f"[PAUSED] {msg}"
 
-                    client.send_message("/chatbox/input", b) # force send the message again because it is stopped by the boolean gatekeep_send
+                    send_m(b) # invoke our send message procedure
 
-            #b[0] = " - ".join(convert_jap_to_romanji(b[0]))
-
-                #client.send_message("/chatbox/input", b)
-
+        # check if we can send the message
         if gatekeep_send is False:
-            client.send_message("/chatbox/input", b)
+            send_m(b) # invoke our send message procedure
 
     time.sleep(2)
