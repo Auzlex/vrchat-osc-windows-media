@@ -71,6 +71,7 @@ def send_m(b):
     if last_b != b[0]:
         last_b = b[0]
         client.send_message("/chatbox/input", b) # force send the message again because it is stopped by the boolean gatekeep_send
+        
 
 while(True):
 
